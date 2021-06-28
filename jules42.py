@@ -19,10 +19,10 @@ def list_managers(state):
     users_generator = sdk.users.get_all()
     managers = {}
     for response in users_generator:
-        users = response.get("users", [])
+        users = response.data.get("users", [])
         for user in users:
             user_id = user["userUid"]
-            username = user["userName"]
+            username = user["username"]
             profile_response = sdk.detectionlists.get_user_by_id(user_id)
             manager_username = profile_response.data.get("managerUsername")
             if manager_username:
