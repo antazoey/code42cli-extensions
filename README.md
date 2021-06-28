@@ -1,2 +1,3 @@
 # code42cli-extensions
-My Code42 CLI Custom Extensions
+
+My Code42 CLI Custom Extensions.
