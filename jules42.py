@@ -61,7 +61,7 @@ def show_org(state, org_id):
 
 @main.command()
 @sdk_options
-def find_audit_log_date(state):
+def verify_audit_log_dates(state):
     """Seek for audit log event timestamp formats that we don't handle correctly."""
     gen = state.sdk.auditlogs.get_all()
     for response in gen:
