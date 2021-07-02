@@ -3,7 +3,7 @@ import json
 
 from code42cli.extensions import script
 from code42cli.extensions import sdk_options
-from code42cli.cmds.auditlogs import _parse_audit_log_timestamp_string_to_timestamp  # Not public
+from code42cli.util import parse_timestamp
 
 
 @click.group(name="jules")
@@ -69,7 +69,7 @@ def find_audit_log_date(state):
         for event in events:
             timestamp = event["timestamp"]
             try:
-                _parse_audit_log_timestamp_string_to_timestamp(timestamp)
+                parse_timestamp(timestamp)
             except ValueError:
                 click.echo("FOUND ONE!")
                 click.echo(event)
