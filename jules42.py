@@ -5,6 +5,7 @@ import datetime
 from code42cli.extensions import script
 from code42cli.extensions import sdk_options
 from code42cli.util import parse_timestamp
+from py42.exceptions import Py42ChecksumNotFoundError
 
 from py42.sdk.queries.fileevents.file_event_query import FileEventQuery
 from py42.sdk.queries.fileevents.filters.device_filter import OSHostname
@@ -148,25 +149,31 @@ def _get_latest_security_event(sdk, device_name):
         }
 
 
-def _prettify_dict(data):
-    return json.dumps(data, indent=2)
-
-
 @main.command()
 @sdk_options
-#@click.argument("device_name")
-def latest_device_event(state):
-    """Show a device's latest security event via its device name."""
-    # sdk = state.sdk
-    # device_name.encode("utf-8")
-    # latest_event = _get_latest_security_event(sdk, device_name)
-    # click.echo(_prettify_dict(latest_event))
+@click.option("--md5", help="The MD5 hash of the file to download.")
+@click.option("--sha256", help="The SHA256 hash of the file to download.")
+@click.option("--save-as", help="The name of the file to save as.", default="download")
+def download(state, md5, sha256, save_as):
+    """Download a file from Code42."""
+    try:
+        if md5:
+            response = state.sdk.securitydata.stream_file_by_md5(md5)
+        elif sha256:
+            response = state.sdk.securitydata.stream_file_by_sha256(sha256)
+        else:
+            raise click.ClickException("Missing one of required md5 or sha256 options.")
+    except Py42ChecksumNotFoundError as err:
+        click.echo(str(err), err=True)
+        return
+
+    with open(save_as, "w") as f:
+        for chunk in response.iter_content(chunk_size=1024):
+            f.write(chunk)
 
 
-    test_device_name = "§§§§§¶•ººª••∞¢££™™¡ººª¶ª§"
-    device_filter = OSHostname.eq(test_device_name)
-    query = FileEventQuery(device_filter)
-    response = state.sdk.securitydata.search_file_events(query)
+def _prettify_dict(data):
+    return json.dumps(data, indent=2)
 
 
 if __name__ == "__main__":
