@@ -2,6 +2,7 @@ import click
 import json
 import datetime
 
+import code42cli.profile as cliprofile
 from code42cli.extensions import script
 from code42cli.extensions import sdk_options
 from code42cli.util import parse_timestamp
@@ -169,7 +170,55 @@ def download(state, md5, sha256, save_as):
 
     with open(save_as, "w") as f:
         for chunk in response.iter_content(chunk_size=1024):
-            f.write(chunk)
+            if chunk:
+                f.write(str(chunk))
+
+
+@main.command()
+def select():
+    """Set a profile as the default by selecting it from a list."""
+    profiles = cliprofile.get_all_profiles()
+    profile_names = [profile_choice.name for profile_choice in profiles]
+    choices = PromptChoice(profile_names)
+    choices.print_choices()
+    prompt_message = "Input the number of the profile you wish to use"
+    profile_name = click.prompt(prompt_message, type=choices)
+    _set_default_profile(profile_name)
+
+
+class PromptChoice(click.ParamType):
+    def __init__(self, choices):
+        self.choices = choices
+
+    def print_choices(self):
+        print_numbered_list(self.choices)
+
+    def convert(self, value, param, ctx):
+        try:
+            choice_index = int(value) - 1
+            return self.choices[choice_index]
+        except Exception:
+            self.fail("Invalid choice", param=param)
+
+
+def print_numbered_list(items):
+    """Outputs a numbered list of items to the user.
+    For example, provide ["test", "foo"] to print "1. test\n2. foo".
+    """
+
+    choices = dict(enumerate(items, 1))
+    for num in choices:
+        click.echo(f"{num}. {choices[num]}")
+    click.echo()
+
+
+def _set_default_profile(profile_name):
+    cliprofile.switch_default_profile(profile_name)
+    _print_default_profile_was_set(profile_name)
+
+
+def _print_default_profile_was_set(profile_name):
+    click.echo(f"{profile_name} has been set as the default profile.")
 
 
 def _prettify_dict(data):
