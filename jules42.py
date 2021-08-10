@@ -217,6 +217,16 @@ def _set_default_profile(profile_name):
     _print_default_profile_was_set(profile_name)
 
 
+@main.command()
+@sdk_options
+@click.argument("alert_id")
+def show_alert_details(state, alert_id):
+    """Show an aggregated alert details view."""
+    alert = state.sdk.alerts.get_aggregate_data(alert_id)
+    data = _prettify_dict(alert.data)
+    click.echo(data)
+
+
 def _print_default_profile_was_set(profile_name):
     click.echo(f"{profile_name} has been set as the default profile.")
 
