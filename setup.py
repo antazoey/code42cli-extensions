@@ -7,6 +7,6 @@ setup(
     install_requires=["code42cli"],
     entry_points="""
         [code42cli.plugins]
-        jules=jules42:main
+        jules=jules42:jules
     """,
 )
