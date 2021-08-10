@@ -8,7 +8,9 @@ def create_device_data(sdk, device):
     device_name = device["name"]
     backup_usage = device.get("backupUsage", [])
     last_backup = _get_latest_backup_timestamp("lastBackup", backup_usage)
-    last_completed_backup = _get_latest_backup_timestamp("lastCompletedBackup", backup_usage)
+    last_completed_backup = _get_latest_backup_timestamp(
+        "lastCompletedBackup", backup_usage
+    )
     archive_bytes = _get_max_archive_bytes(backup_usage)
     current_time = get_now().strftime("%Y-%m-%dT%H:%M:%S.%fZ")
     last_security_event = _get_latest_security_event(sdk, device_name)
@@ -20,7 +22,7 @@ def create_device_data(sdk, device):
         "lastCompletedBackup": last_completed_backup,
         "archiveBytes": archive_bytes,
         "healthCheckTime": current_time,
-        "lastSecurityEvent": last_security_event
+        "lastSecurityEvent": last_security_event,
     }
 
 
@@ -56,5 +58,5 @@ def _get_latest_security_event(sdk, device_name):
             "eventTimestamp": file_event.get("eventTimestamp"),
             "eventType": file_event.get("eventType"),
             "fileName": file_event.get("fileName"),
-            "md5Checksum": file_event.get("md5Checksum")
+            "md5Checksum": file_event.get("md5Checksum"),
         }
