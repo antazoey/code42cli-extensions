@@ -7,17 +7,19 @@ from code42cli.extensions import sdk_options
 from code42cli.util import parse_timestamp
 from py42.exceptions import Py42ChecksumNotFoundError
 
-from j42_alerts import create_simple_query
+from j42_alerts import create_simple_query, get_alert_aggregate_data
 from j42_click_ext import PromptChoice
 from j42_devices import create_device_data
 from j42_profile import set_default_profile
-from j42_util import prettify_dict
+from j42_util import output_pretty
 
 
 @click.group(name="jules")
 @sdk_options
 def jules(state):
-    """My custom commands."""
+    """Custom Code42 commands by Juliya Smith and inspired from other Code42 products."""
+    # A lot of the logic in this extension is inspired from use-cases such as the Splunk integration,
+    # the Splunk SOAR integration.
     pass
 
 
@@ -41,8 +43,7 @@ def list_managers(state):
                 else:
                     managers[manager_username].append(username)
 
-    json_text = prettify_dict(managers)
-    click.echo(json_text)
+    output_pretty(managers)
 
 
 @jules.command()
@@ -93,7 +94,7 @@ def devices_health(state):
         devices = response["computers"]
         for device in devices:
             device_data = create_device_data(sdk, device)
-            click.echo(prettify_dict(device_data))
+            output_pretty(device_data)
 
 
 @jules.command()
@@ -121,7 +122,7 @@ def download(state, md5, sha256, save_as):
 
 
 @jules.command()
-def select():
+def select_profile():
     """Set a profile as the default by selecting it from a list."""
     profiles = cliprofile.get_all_profiles()
     profile_names = [profile_choice.name for profile_choice in profiles]
@@ -135,24 +136,35 @@ def select():
 @jules.command()
 @sdk_options
 @click.argument("alert_id")
-def show_alert_aggregate_data(state, alert_id):
+def show_alert_aggregate(state, alert_id):
     """Show an aggregated alert details view."""
-    alert = state.sdk.alerts.get_aggregate_data(alert_id)
-    alert_data = alert.data["alert"]
-    data = prettify_dict(alert_data)
-    click.echo(data)
+    alert_data = get_alert_aggregate_data(sdk, alert_id)
+    output_pretty(alert_data)
 
 
 @jules.command()
 @sdk_options
-def list_alert_aggregate_data(state, alert_id):
+def list_alert_urls(state):
     """Show an aggregated alert details view."""
+    sdk = state.sdk
     query = create_simple_query()
-    alerts = state.sdk.alerts.search()
-    alert = state.sdk.alerts.get_aggregate_data(alert_id)
-    alert_data = alert.data["alert"]
-    data = prettify_dict(alert_data)
-    click.echo(data)
+    page_num = 1
+    response = sdk.alerts.search(query, page_num=page_num)
+    alerts = response["alerts"]
+    while len(response["alerts"]) >= 500:
+        page_num += 1
+        response = sdk.alerts.search(query, page_num=page_num)
+        alerts.extend(response.data["alerts"])
+
+    alert_ids = [a["id"] for a in alerts]
+    for alert_id in alert_ids:
+        alert_data = get_alert_aggregate_data(sdk, alert_id)
+        data = {
+            "id": alert_data["id"],
+            "ffsUrl": alert_data["ffsUrlEndpoint"],
+            "alertUrl": alert_data["alertUrl"]
+        }
+        output_pretty(data)
 
 
 if __name__ == "__main__":

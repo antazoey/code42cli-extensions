@@ -12,3 +12,8 @@ def create_simple_query():
     query.sort_direction = "asc"
     query.sort_key = "CreatedAt"
     return query
+
+
+def get_alert_aggregate_data(sdk, alert_id):
+    alert = sdk.alerts.get_v2_aggregate_data(alert_id)
+    return alert.data["alert"]

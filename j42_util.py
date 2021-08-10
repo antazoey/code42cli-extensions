@@ -20,6 +20,11 @@ def prettify_dict(data):
     return json.dumps(data, indent=2)
 
 
+def output_pretty(data):
+    data = prettify_dict(data)
+    click.echo(data)
+
+
 def parse_timestamp(date_str):
     # example: {"property": "bar", "timestamp": "2020-11-23T17:13:26.239647Z"}
     ts = date_str[:-1]
