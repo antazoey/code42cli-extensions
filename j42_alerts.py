@@ -15,5 +15,5 @@ def create_simple_query():
 
 
 def get_alert_aggregate_data(sdk, alert_id):
-    alert = sdk.alerts.get_v2_aggregate_data(alert_id)
+    alert = sdk.alerts.get_aggregate_data(alert_id)
     return alert.data["alert"]

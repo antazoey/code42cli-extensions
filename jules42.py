@@ -138,7 +138,7 @@ def select_profile():
 @click.argument("alert_id")
 def show_alert_aggregate(state, alert_id):
     """Show an aggregated alert details view."""
-    alert_data = get_alert_aggregate_data(sdk, alert_id)
+    alert_data = get_alert_aggregate_data(state.sdk, alert_id)
     output_pretty(alert_data)
 
 
