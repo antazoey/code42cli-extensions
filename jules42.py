@@ -19,7 +19,7 @@ from j42_util import output_pretty
 def jules(state):
     """Custom Code42 commands by Juliya Smith and inspired from other Code42 products."""
     # A lot of the logic in this extension is inspired from use-cases such as the Splunk integration,
-    # the Splunk SOAR integration.
+    # or the Splunk SOAR integration.
     pass
 
 
