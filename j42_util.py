@@ -12,8 +12,8 @@ def get_now():
     return datetime.now(tz=timezone.utc)
 
 
-def get_default_search_timestamp():
-    return (get_now() - timedelta(days=INITIALIZE_DAYS_BACK)).timestamp()
+def get_default_search_timestamp(days=INITIALIZE_DAYS_BACK):
+    return (get_now() - timedelta(days=days)).timestamp()
 
 
 def prettify_dict(data):

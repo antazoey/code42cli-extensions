@@ -11,7 +11,7 @@ from j42_alerts import create_simple_query, get_alert_aggregate_data
 from j42_click_ext import PromptChoice
 from j42_devices import create_device_data
 from j42_profile import set_default_profile
-from j42_util import output_pretty
+from j42_util import output_pretty, get_default_search_timestamp
 
 
 @click.group(name="jules")
@@ -165,6 +165,20 @@ def list_alert_urls(state):
             "alertUrl": alert_data["alertUrl"]
         }
         output_pretty(data)
+
+
+@jules.command()
+@sdk_options
+def audit_log_total(state):
+    """Show the total number of audit log events."""
+    begin_time = get_default_search_timestamp(days=2)
+    total_count = 0
+    generator = state.sdk.auditlogs.get_all(begin_time=begin_time)
+    for response in generator:
+        if "events" in response.data:
+            total_count += len(response.data["events"])
+
+    click.echo(total_count)
 
 
 if __name__ == "__main__":
